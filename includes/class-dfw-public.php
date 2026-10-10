@@ -179,10 +179,11 @@ final class DFW_Public
             <?php endif; ?>
             <?php if (!$row) : ?>
                 <?php if (!$active) : ?>
-                    <p role="status">Ce formulaire n’accepte plus de nouvelles réponses.</p>
+                    <p role="status">Ce formulaire n’accepte plus de nouvelles réponses. Vous pouvez toujours reprendre un brouillon pour le supprimer.</p>
                 <?php else : ?>
                     <p class="dfw-info">Prototype alpha : ne communiquez pas de données personnelles ou sensibles.</p>
                     <?php echo self::action($slug, 'start', 'Commencer', 'dfw-primary'); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
+                <?php endif; ?>
                     <details><summary>J’ai déjà un code de reprise</summary>
                         <form method="post" class="dfw-fields"><?php echo self::hidden($slug); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped ?>
                             <label for="dfw-code-<?php echo esc_attr($slug); ?>">Code de reprise</label>
@@ -190,7 +191,6 @@ final class DFW_Public
                             <button name="dfw_action" value="resume" type="submit">Reprendre</button>
                         </form>
                     </details>
-                <?php endif; ?>
             <?php elseif ($row['status'] === 'submitted') : ?>
                 <p class="dfw-info" role="status">Vos réponses sont enregistrées et verrouillées. Elles ne sont pas publiées automatiquement.</p>
                 <details><summary>Supprimer définitivement mes réponses</summary>
