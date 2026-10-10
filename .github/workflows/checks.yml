@@ -1,0 +1,50 @@
+name: Vérifications PHP
+on:
+  push:
+    paths:
+      - 'dendrila-forms-wordpress.php'
+      - 'includes/**'
+      - 'assets/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - '.github/workflows/checks.yml'
+  pull_request:
+    paths:
+      - 'dendrila-forms-wordpress.php'
+      - 'includes/**'
+      - 'assets/**'
+      - 'tests/**'
+      - 'scripts/**'
+      - '.github/workflows/checks.yml'
+concurrency:
+  group: wp-forms-check-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    strategy:
+      fail-fast: false
+      matrix:
+        php: ['8.1', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: jasmin-abernathy/dendrila-forms
+          ref: 335f92e01eada5cb9ee1dee71a974c841d310de4
+          path: .deps/dendrila-forms
+          persist-credentials: false
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          tools: none
+      - name: Ajouter le moteur commun (version figée)
+        run: |
+          mkdir -p vendor/dendrila-forms/src vendor/dendrila-forms/forms
+          cp .deps/dendrila-forms/src/Core.php vendor/dendrila-forms/src/
+          cp .deps/dendrila-forms/forms/*.json vendor/dendrila-forms/forms/
+      - name: Vérification syntaxique
+        run: find includes tests vendor/dendrila-forms/src -name '*.php' -print0 | xargs -0 -n1 php -l && php -l dendrila-forms-wordpress.php
+      - name: Tests de contrat
+        run: php tests/smoke.php
