@@ -1,0 +1,33 @@
+name: ZIP installable WordPress
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          repository: jasmin-abernathy/dendrila-forms
+          ref: 335f92e01eada5cb9ee1dee71a974c841d310de4
+          path: .deps/dendrila-forms
+          persist-credentials: false
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+      - name: Vérifier et assembler
+        run: |
+          mkdir -p vendor/dendrila-forms/src vendor/dendrila-forms/forms
+          cp .deps/dendrila-forms/src/Core.php vendor/dendrila-forms/src/
+          cp .deps/dendrila-forms/forms/*.json vendor/dendrila-forms/forms/
+          php tests/smoke.php
+          bash scripts/package.sh
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dendrila-forms-wordpress-0.1.0-alpha
+          path: dist/dendrila-forms-wordpress.zip
+          if-no-files-found: error
+          retention-days: 14
