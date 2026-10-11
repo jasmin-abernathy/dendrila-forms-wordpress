@@ -21,7 +21,7 @@ final class DFW_Entries
             form_slug varchar(60) NOT NULL,
             secret_hash char(64) NOT NULL,
             answers longtext NOT NULL,
-            cursor varchar(80) NOT NULL DEFAULT '',
+            `cursor` varchar(80) NOT NULL DEFAULT '',
             status varchar(12) NOT NULL DEFAULT 'draft',
             revision bigint(20) unsigned NOT NULL DEFAULT 0,
             created_at datetime NOT NULL,
@@ -48,7 +48,7 @@ final class DFW_Entries
         $days = (int) apply_filters('dfw_retention_days', 30);
         $days = max(1, min(365, $days));
         $cutoff = gmdate('Y-m-d H:i:s', time() - $days * DAY_IN_SECONDS);
-        $wpdb->query($wpdb->prepare('DELETE FROM ' . self::table() . ' WHERE updated_at < %s', $cutoff));
+        $wpdb->query($wpdb->prepare('DELETE FROM %i WHERE updated_at < %s', self::table(), $cutoff));
     }
 
     public static function throttle(string $action, int $limit, int $window = 600): void
@@ -88,8 +88,8 @@ final class DFW_Entries
         }
         global $wpdb;
         $row = $wpdb->get_row($wpdb->prepare(
-            'SELECT * FROM ' . self::table() . ' WHERE id = %s AND form_slug = %s',
-            $parts[1], $slug
+            'SELECT * FROM %i WHERE id = %s AND form_slug = %s',
+            self::table(), $parts[1], $slug
         ), ARRAY_A);
         if (!is_array($row) || !hash_equals((string) $row['secret_hash'], hash('sha256', $parts[2]))) {
             return null;
@@ -141,7 +141,7 @@ final class DFW_Entries
     {
         global $wpdb;
         return (int) $wpdb->get_var($wpdb->prepare(
-            'SELECT COUNT(*) FROM ' . self::table() . ' WHERE form_slug = %s', $slug
+            'SELECT COUNT(*) FROM %i WHERE form_slug = %s', self::table(), $slug
         ));
     }
 
