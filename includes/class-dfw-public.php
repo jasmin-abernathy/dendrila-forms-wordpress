@@ -8,10 +8,40 @@ final class DFW_Public
     public static function boot(): void
     {
         add_shortcode('dendrila_forms', array(__CLASS__, 'shortcode'));
+        add_action('template_redirect', array(__CLASS__, 'protect_headers'), 0);
         add_action('template_redirect', array(__CLASS__, 'handle_post'), 1);
         add_action('wp_enqueue_scripts', static function (): void {
             wp_register_style('dfw-public', plugins_url('assets/public.css', DFW_FILE), array(), DFW_VERSION);
+            if (self::page_contains_form()) {
+                wp_enqueue_style('dfw-public');
+            }
         });
+    }
+
+    /**
+     * Recognize public pages with form shortcodes before wp_head prints styles.
+     * Widget/template insertions outside the post are not reliably detectable here:
+     * hosts must still exclude all form pages from shared/full-page caching.
+     */
+    public static function page_contains_form(): bool
+    {
+        if (!is_singular()) { return false; }
+        $post = get_queried_object();
+        if (!is_object($post) || !is_string($post->post_content ?? null)) {
+            return false;
+        }
+        if (has_shortcode($post->post_content, 'dendrila_forms')) { return true; }
+        // Elementor Shortcode widgets are stored outside post_content.
+        $data = get_post_meta((int) $post->ID, '_elementor_data', true);
+        return is_string($data) && strlen($data) <= 2000000 &&
+            str_contains($data, 'dendrila_forms');
+    }
+
+    public static function protect_headers(): void
+    {
+        if (self::page_contains_form() && !headers_sent()) {
+            nocache_headers();
+        }
     }
 
     private static function definition(string $slug): ?array

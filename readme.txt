@@ -12,7 +12,7 @@ Prototype alpha de questionnaires et d'interviews guidés pour WordPress.
 
 Dendrila Forms accompagne les enquêtes et entretiens éditoriaux sur WordPress.
 
-Ce prototype alpha permet de créer des modèles JSON de questionnaires à partir d'exemples, de les valider, de les activer explicitement et de les afficher via shortcode. La personne répondante progresse question par question, peut revenir en arrière, conserver un code de reprise, relire puis terminer. Elle peut supprimer ses réponses. L'administration peut exporter un lot limité de réponses terminées en JSON. Les réponses ne sont jamais publiées automatiquement. Pas de traçage tiers.
+Ce prototype alpha permet de créer des modèles JSON de questionnaires à partir d'exemples, de les valider, de les activer explicitement et de les afficher via shortcode. La personne répondante progresse question par question, peut revenir en arrière, conserver un code de reprise, relire puis terminer. Elle peut supprimer ses réponses. L'administration peut exporter un lot limité aux 500 réponses terminées les plus récentes en JSON. L'export contient `more_available` lorsque des réponses supplémentaires existent. Les réponses ne sont jamais publiées automatiquement. Pas de traçage tiers.
 
 **Avertissement** : version expérimentale uniquement, sans invitations authentifiées, statistiques publiques, éditeur visuel ni tests sur WordPress en conditions réelles. Ne pas recueillir de données personnelles ou sensibles. Exclure les pages de réponse du cache public.
 

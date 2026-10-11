@@ -4,6 +4,7 @@ define('ABSPATH', __DIR__ . '/');
 require __DIR__ . '/../vendor/dendrila-forms/src/Core.php';
 require __DIR__ . '/../includes/class-dfw-admin.php';
 require __DIR__ . '/../includes/class-dfw-entries.php';
+require __DIR__ . '/../includes/class-dfw-public.php';
 function check(bool $ok, string $why): void
 {
     if (!$ok) { throw new RuntimeException('Échec : ' . $why); }
@@ -27,4 +28,14 @@ check(!str_contains(file_get_contents(__DIR__ . '/../includes/class-dfw-entries.
     'aucun privilège commerce intégré');
 check(str_contains(file_get_contents(__DIR__ . '/../includes/class-dfw-admin.php'), 'manage_options'),
     'administration restreinte');
+// Never regress the broken export identifier validation.
+$code = file_get_contents(__DIR__ . '/../includes/class-dfw-admin.php');
+check(substr_count($code, "preg_match('/\\\\A[a-z0-9-]{1,60}\\\\z/D'") === 0,
+    'aucune expression régulière doublant les antislashs');
+check(str_contains($code, "'more_available' => " . '$has_more'), 'limite export annoncée');
+function is_singular(): bool { return true; }
+function get_queried_object(): object { return (object) array('ID' => 5, 'post_content' => 'Contenu [dendrila_forms id="test"]'); }
+function has_shortcode($content, $tag): bool { return str_contains($content, '[' . $tag); }
+function get_post_meta($id, $key, $single = true) { return ''; }
+check(DFW_Public::page_contains_form(), 'charger style et en-têtes avant le rendu');
 echo "Dendrila Forms WordPress : contrats OK\n";

@@ -16,6 +16,8 @@ on:
       - 'tests/**'
       - 'scripts/**'
       - '.github/workflows/checks.yml'
+permissions:
+  contents: read
 concurrency:
   group: wp-forms-check-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
