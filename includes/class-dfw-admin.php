@@ -116,9 +116,8 @@ final class DFW_Admin
         }
         global $wpdb;
         $rows = $wpdb->get_results($wpdb->prepare(
-            'SELECT id, answers, status, created_at, submitted_at FROM ' . DFW_Entries::table() .
-            ' WHERE form_slug = %s AND status = %s ORDER BY created_at DESC LIMIT 501',
-            $slug, 'submitted'
+            'SELECT id, answers, status, created_at, submitted_at FROM %i WHERE form_slug = %s AND status = %s ORDER BY created_at DESC LIMIT 501',
+            DFW_Entries::table(), $slug, 'submitted'
         ), ARRAY_A);
         $rows = (array) $rows;
         $has_more = count($rows) > 500;
@@ -182,6 +181,7 @@ final class DFW_Admin
                     '<form method="post" action="' . esc_url(admin_url('admin-post.php')) . '">' .
                     '<input type="hidden" name="action" value="dfw_export">' .
                     '<input type="hidden" name="dfw_slug" value="' . esc_attr($id) . '">' .
+                    // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Core WordPress generates the hidden nonce input markup.
                     wp_nonce_field('dfw_export_' . $id, '_wpnonce', true, false) .
                     '<button class="button" type="submit">Exporter les 500 réponses terminées les plus récentes (JSON)</button>' .
                     '</form></div></div>';
