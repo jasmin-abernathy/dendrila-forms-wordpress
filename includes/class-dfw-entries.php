@@ -21,7 +21,7 @@ final class DFW_Entries
             form_slug varchar(60) NOT NULL,
             secret_hash char(64) NOT NULL,
             answers longtext NOT NULL,
-            cursor varchar(80) NOT NULL DEFAULT '',
+            `cursor` varchar(80) NOT NULL DEFAULT '',
             status varchar(12) NOT NULL DEFAULT 'draft',
             revision bigint(20) unsigned NOT NULL DEFAULT 0,
             created_at datetime NOT NULL,
