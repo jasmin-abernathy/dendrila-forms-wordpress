@@ -4,7 +4,12 @@ on:
 permissions:
   contents: read
 jobs:
+  wordpress-check:
+    uses: ./.github/workflows/plugin-check.yml
+    permissions:
+      contents: read
   package:
+    needs: wordpress-check
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:

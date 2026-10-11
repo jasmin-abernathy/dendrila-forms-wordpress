@@ -1,0 +1,79 @@
+name: WordPress Plugin Check
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'dendrila-forms-wordpress.php'
+      - 'includes/**'
+      - 'assets/**'
+      - 'readme.txt'
+      - '.github/workflows/plugin-check.yml'
+  pull_request:
+    branches: [main]
+    paths:
+      - 'dendrila-forms-wordpress.php'
+      - 'includes/**'
+      - 'assets/**'
+      - 'readme.txt'
+      - '.github/workflows/plugin-check.yml'
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dendrila-forms-wpcheck-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  metadata:
+    name: WordPress plugin metadata
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - name: Verify version, tags and readme
+        shell: bash
+        run: |
+          set -euo pipefail
+          VERSION=$(sed -n 's/^[[:space:]]*\* Version:[[:space:]]*//p' dendrila-forms-wordpress.php | head -n1)
+          RUNTIME=$(sed -n "s/^define('DFW_VERSION', '\([^']*\)');/\1/p" dendrila-forms-wordpress.php | head -n1)
+          TAGS=$(grep '^Tags:' readme.txt | cut -d: -f2- | tr ',' '\n' | sed '/^[[:space:]]*$/d' | wc -l | tr -d ' ')
+          SIZE=$(wc -c < readme.txt | tr -d ' ')
+          test -n "$VERSION"
+          test "$VERSION" = "$RUNTIME"
+          test "$TAGS" -le 5
+          test "$SIZE" -le 10240
+          echo "Version: $VERSION · tags: $TAGS · readme: $SIZE bytes"
+
+  official:
+    name: Official WordPress Plugin Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          repository: jasmin-abernathy/dendrila-forms
+          ref: 335f92e01eada5cb9ee1dee71a974c841d310de4
+          path: .deps/dendrila-forms
+          persist-credentials: false
+      - name: Prepare exactly the engine shipped in the installable ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p vendor/dendrila-forms/src vendor/dendrila-forms/forms
+          cp .deps/dendrila-forms/src/Core.php vendor/dendrila-forms/src/
+          cp .deps/dendrila-forms/forms/*.json vendor/dendrila-forms/forms/
+      - uses: wordpress/plugin-check-action@v1.1.9
+        with:
+          wp-version: latest
+          slug: dendrila-forms-wordpress
+          exclude-directories: '.github,.deps,docs,tests,scripts,dist,build'
+          exclude-files: '.gitignore,README.md,SECURITY.md,CONTRIBUTING.md,AGENTS.md'
