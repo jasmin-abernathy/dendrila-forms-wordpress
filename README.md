@@ -11,7 +11,7 @@ Extension libre qui adapte le moteur [Dendrila Forms](https://github.com/jasmin-
 - Activation explicite de chaque formulaire et shortcode `[dendrila_forms id="mon-enquete"]`.
 - Parcours sans JavaScript obligatoire : une question à la fois, conditions, retour, progression, relecture.
 - Sauvegarde en table WordPress dédiée ; reprise via un secret aléatoire dans un cookie HttpOnly et un code affiché ; seul le hachage du secret est en base.
-- Envoi verrouillé, suppression par la personne détentrice du code et export JSON privé des réponses **terminées** par l'administration (500 maximum par export).
+- Envoi verrouillé, suppression par la personne détentrice du code et export JSON privé des réponses **terminées** par l'administration (500 réponses les plus récentes maximum par export, avec indicateur `more_available` si d'autres réponses existent). Le téléchargement n'est pas encore un export exhaustif paginé.
 - Limitation indicative de tentatives de création et reprise, purge quotidienne via WP-Cron des enregistrements inactifs après 30 jours (valeur filtrable).
 - Aucun traceur ni service tiers obligatoire, aucune publication automatique de réponses.
 
@@ -27,14 +27,16 @@ Compatibilité visée : **WordPress 6.5+ et PHP 8.1+**. Installation réelle non
 2. Dans **Dendrila Forms**, choisir d'abord « Exemple d’enquête » ou « Exemple d’interview ».
 3. Adapter l'identifiant et le JSON ; cocher **Autoriser les réponses** et enregistrer.
 4. Copier le shortcode affiché et le coller dans une **page WordPress publiée**.
-5. Exclure cette page du cache pleine page et du CDN. Sans cela, le code de reprise et les états de réponse pourraient être exposés entre visiteurs.
+5. Exclure cette page du cache pleine page et du CDN. Le plugin émet aussi des en-têtes anti-cache plus tôt pour les pages reconnues (shortcode dans le contenu ou repère Elementor), mais **cela ne remplace pas une exclusion explicite** au niveau du cache hébergeur/CDN. Sans cette exclusion, le code de reprise et les états pourraient être exposés entre visiteurs.
 6. Parcourir l'exemple fictif, quitter/reprendre, soumettre et tester la suppression. Vérifier en admin que l'export est inaccessible à un autre rôle.
 
 L'export fournit uniquement les réponses soumises et n'exporte **jamais** les codes de reprise ni leur empreinte. Conserver le JSON exporté de manière privée ; il peut contenir des données saisies par les répondants.
 
 ## Réutilisation du moteur
 
-Le code canonique de validation/conditions/réponses est dans `jasmin-abernathy/dendrila-forms`. Un commit précis est intégré au ZIP **à la construction**, jamais téléchargé à l'exécution. WordPress possède son propre stockage, ses nonces, ses permissions et ses tâches programmées. Voir [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+Le code canonique de validation/conditions/réponses est dans `jasmin-abernathy/dendrila-forms`. Un commit précis est intégré au ZIP **à la construction**, jamais téléchargé à l'exécution. WordPress possède son propre stockage, ses nonces, ses permissions et ses tâches programmées. Voir [docs/PUBLICATION.md](docs/PUBLICATION.md) et [CONTRIBUTING.md](CONTRIBUTING.md) avant d'ouvrir le dépôt au public.
+
+Voir [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Tests
 

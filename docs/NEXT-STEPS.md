@@ -1,6 +1,7 @@
 # Suite du développement
 
-1. **Pilote WordPress isolé** : installer le ZIP, vérifier activation/dbDelta/WP-Cron et shortcode sur page publique sans cache. Vérifier mobile, clavier, lecteur d'écran et navigateurs.
+1. **Avant publication du code** : conserver le badge alpha, vérifier qu'aucun fichier de données, secret ou archive privée ne figure dans l'historique, et signaler les limites de l'export JSON.
+2. **Pilote WordPress isolé** : installer le ZIP, vérifier activation/dbDelta/WP-Cron et shortcode sur page publique sans cache. Vérifier mobile, clavier, lecteur d'écran et navigateurs.
 2. **Parcours éditorial** : écran d'administration visuel pour organiser questions, thèmes, types et conditions sans éditer JSON.
 3. **Réponses** : recherche et lecture sécurisée côté administration, exports paginés, révisions, purge manuelle contrôlée.
 4. **Interviews** : invitations nominatives, authentification par code à usage unique, consentement, image avec crédit, étapes de validation avant publication.

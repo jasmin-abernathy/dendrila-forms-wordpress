@@ -106,7 +106,7 @@ final class DFW_Admin
         }
         $slug = isset($_POST['dfw_slug']) && is_string($_POST['dfw_slug'])
             ? sanitize_title(wp_unslash($_POST['dfw_slug'])) : '';
-        if (!preg_match('/\\A[a-z0-9-]{1,60}\\z/D', $slug)) {
+        if (!preg_match('/\A[a-z0-9-]{1,60}\z/D', $slug)) {
             wp_die('Identifiant invalide.', 'Requête invalide', array('response' => 400));
         }
         check_admin_referer('dfw_export_' . $slug);
@@ -117,11 +117,13 @@ final class DFW_Admin
         global $wpdb;
         $rows = $wpdb->get_results($wpdb->prepare(
             'SELECT id, answers, status, created_at, submitted_at FROM ' . DFW_Entries::table() .
-            ' WHERE form_slug = %s AND status = %s ORDER BY created_at DESC LIMIT 500',
+            ' WHERE form_slug = %s AND status = %s ORDER BY created_at DESC LIMIT 501',
             $slug, 'submitted'
         ), ARRAY_A);
+        $rows = (array) $rows;
+        $has_more = count($rows) > 500;
         $entries = array();
-        foreach ((array) $rows as $row) {
+        foreach (array_slice($rows, 0, 500) as $row) {
             $answers = json_decode((string) $row['answers'], true);
             $entries[] = array(
                 'id' => $row['id'], 'answers' => is_array($answers) ? $answers : array(),
@@ -132,7 +134,8 @@ final class DFW_Admin
         header('Content-Type: application/json; charset=UTF-8');
         header('X-Content-Type-Options: nosniff');
         header('Content-Disposition: attachment; filename="dendrila-' . $slug . '-reponses.json"');
-        echo wp_json_encode(array('form' => $slug, 'exported_at' => gmdate('c'), 'entries' => $entries),
+        echo wp_json_encode(array('form' => $slug, 'exported_at' => gmdate('c'),
+            'limit' => 500, 'more_available' => $has_more, 'entries' => $entries),
             JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
         exit;
     }
@@ -180,7 +183,7 @@ final class DFW_Admin
                     '<input type="hidden" name="action" value="dfw_export">' .
                     '<input type="hidden" name="dfw_slug" value="' . esc_attr($id) . '">' .
                     wp_nonce_field('dfw_export_' . $id, '_wpnonce', true, false) .
-                    '<button class="button" type="submit">Exporter les réponses terminées (JSON)</button>' .
+                    '<button class="button" type="submit">Exporter les 500 réponses terminées les plus récentes (JSON)</button>' .
                     '</form></div></div>';
             }
             echo '</div>';
